@@ -12,7 +12,9 @@ bin-release/
 *.air
 *.ipa
 *.apk
-
+*.smi
+*.java
+*.class
 # Large files
 *.sdf
 
