@@ -1,24 +1,32 @@
 <?php
 session_start();
-if(isset($_POST['fn']) &&
-   isset($_POST['sn']))
-  {
-    echo<<<_HEAD1
-    <html>
-    <body>
-_HEAD1;
+require_once 'login.php';
+
+if(isset($_POST['fn']) && isset($_POST['sn'])) {
+    $_SESSION['forname'] = htmlspecialchars($_POST['fn']);
+    $_SESSION['surname'] = htmlspecialchars($_POST['sn']);
+    $smask = $_SESSION['supmask'] ?? 'Not set';
+
+    echo <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome Page</title>
+</head>
+<body>
+HTML;
+
     include 'menuf.php';
-    $_SESSION['forname'] = $_POST['fn'];
-    $_SESSION['surname'] = $_POST['sn'];
-    $smask =  $_SESSION['supmask'];
-echo <<<_TAIL1
+
+    echo <<<HTML
 <pre>
-   Mask Value $smask
+   Mask Value: $smask
 </pre>
 </body>
 </html>
-_TAIL1;
-    } else { 
-  header('location: https://bioinfmsc8.bio.ed.ac.uk/${USER}/complib.php');
-  }
+HTML;
+} else {
+    header("Location: https://bioinfmsc8.bio.ed.ac.uk/~$username/complib.php");
+}
 ?>

@@ -2,72 +2,66 @@
 session_start();
 require_once 'login.php';
 include 'redir.php';
-echo<<<_HEAD1
-<html>
-<body>
-_HEAD1;
 include 'menuf.php';
-// THE CONNECTION AND QUERY SECTIONS NEED TO BE MADE TO WORK FOR PHP 8 USING PDO... //
-$db_server = mysql_connect($db_hostname,$db_username,$db_password);
-if(!$db_server) die("Unable to connect to database: " . mysql_error());
-mysql_select_db($db_database,$db_server) or die ("Unable to select database: " . mysql_error());     
-$query = "select * from Manufacturers";
-$result = mysql_query($query);
-if(!$result) die("unable to process query: " . mysql_error());
-$rows = mysql_num_rows($result);
 
-$smask = $_SESSION['supmask'];
-for($j = 0 ; $j < $rows ; ++$j)
-  {
-    $row = mysql_fetch_row($result);
-    $sid[$j] = $row[0];
-    $snm[$j] = $row[1];
-    $sact[$j] = 0;
-    $tvl = 1 << ($sid[$j] - 1);
-    if($tvl == ($tvl & $smask)) {
-	$sact[$j] = 1;
-      }
-  }
-if(isset($_POST['supplier'])) 
-   {
-     $supplier = $_POST['supplier'];
-     $nele = sizeof($supplier);
-      for($k = 0; $k <$rows; ++$k) {
-       $sact[$k] = 0;
-       for($j = 0 ; $j < $nele ; ++$j) {
-	 if(strcmp($supplier[$j],$snm[$k]) == 0) $sact[$k] = 1;
-       }
-     }
-     $smask = 0;
-     for($j = 0 ; $j < $rows ; ++$j)
-       {
-	 if($sact[$j] == 1) {
-	   $smask = $smask + (1 << ($sid[$j] - 1));
-	 }
-       }
-     $_SESSION['supmask'] = $smask;
-   }
-   echo 'Currently selected Suppliers: ';
-   for($j = 0 ; $j < $rows ; ++$j)
-      {
-    	if($sact[$j] == 1) {
-	  echo $snm[$j] ;
-	  echo " ";
-	}
-      }
-    echo  '<br><pre> <form action="p1.php" method="post">';
-    for($j = 0 ; $j < $rows ; ++$j)
-      {
-    	echo $snm[$j];
-	echo' <input type="checkbox" name="supplier[]" value="';
-	echo $snm[$j];
-        echo'"/>';
-	echo"\n";
-      }
-echo <<<_TAIL1
- <input type="submit" value="OK" />
-</pre></form>
-</body>
-</html>
-_TAIL1;
+// connecting to db
+try {
+    $pdo = new PDO("mysql:host=$db_hostname;dbname=$db_database;charset=utf8mb4", $db_username, $db_password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Unable to connect to database: " . $e->getMessage());
+}
+
+// query all suppliers
+try {
+    $stmt = $pdo->query("SELECT * FROM Manufacturers");
+    $manufacturers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Unable to process query: " . $e->getMessage());
+}
+
+$smask = $_SESSION['supmask'] ?? 0;
+$sact = [];
+
+foreach ($manufacturers as $manufacturer) {
+    $sid = $manufacturer['id'];
+    $snm = $manufacturer['name'];
+    $tvl = 1 << ($sid - 1);
+    $sact[$sid] = ($tvl & $smask) ? 1 : 0;
+}
+
+if(isset($_POST['supplier'])) {
+    $supplier = $_POST['supplier'];
+    $smask = 0;
+    foreach ($supplier as $supName) {
+        foreach ($manufacturers as $manufacturer) {
+            if ($supName == $manufacturer['name']) {
+                $smask |= (1 << ($manufacturer['id'] - 1));
+            }
+        }
+    }
+    $_SESSION['supmask'] = $smask;
+    // calculate the activity status
+    foreach ($manufacturers as $manufacturer) {
+        $sid = $manufacturer['id'];
+        $tvl = 1 << ($sid - 1);
+        $sact[$sid] = ($tvl & $smask) ? 1 : 0;
+    }
+}
+
+echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Select Suppliers</title></head><body>';
+echo 'Currently selected Suppliers: ';
+foreach ($sact as $sid => $isActive) {
+    if ($isActive) {
+        echo $manufacturers[$sid - 1]['name'], " ";
+    }
+}
+echo '<br><pre><form action="p1.php" method="post">';
+foreach ($manufacturers as $manufacturer) {
+    echo htmlspecialchars($manufacturer['name']),
+    ' <input type="checkbox" name="supplier[]" value="',
+    htmlspecialchars($manufacturer['name']), '"',
+    $sact[$manufacturer['id']] ? ' checked' : '', '/><br>';
+}
+echo '<input type="submit" value="OK" /></form></pre></body></html>';
 ?>

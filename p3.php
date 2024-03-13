@@ -1,52 +1,58 @@
 <?php
 session_start();
 include 'redir.php';
-require_once 'login.php';
-echo<<<_HEAD1
-<html>
+require_once 'login.php'; // 确保这个文件包含数据库连接的参数
+
+echo <<<'HEAD'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistics Page</title>
+</head>
 <body>
-_HEAD1;
+HEAD;
+
 include 'menuf.php';
-$dbfs = array("natm","ncar","nnit","noxy","nsul","ncycl","nhdon","nhacc","nrotb","mw","TPSA","XLogP");
-$nms = array("n atoms","n carbons","n nitrogens","n oxygens","n sulphurs","n cycles","n H donors","n H acceptors","n rot bonds","mol wt","TPSA","XLogP");
-echo <<<_MAIN1
-    <pre>
-This is the Statistics Page  (not Complete)
-    </pre>
-_MAIN1;
-if(isset($_POST['tgval'])) 
-   {
-     $chosen = 0;
-     $tgval = $_POST['tgval'];
-     for($j = 0 ; $j <sizeof($dbfs) ; ++$j) {
-       if(strcmp($dbfs[$j],$tgval) == 0) $chosen = $j; 
-     } 
-     printf(" Statistics for %s (%s)<br />\n",$dbfs[$chosen],$nms[$chosen]);
-// THE CONNECTION AND QUERY SECTIONS NEED TO BE MADE TO WORK FOR PHP 8 USING PDO... //
-     //Your mysql and statistics calculation goes here
-     $db_server = mysql_connect($db_hostname,$db_username,$db_password);
-     if(!$db_server) die("Unable to connect to database: " . mysql_error());
-     mysql_select_db($db_database,$db_server) or die ("Unable to select database: " . mysql_error());     
-     $query = sprintf("select AVG(%s), STD(%s) from Compounds",$dbfs[$chosen],$dbfs[$chosen]);
-     $result = mysql_query($query);
-     if(!$result) die("unable to process query: " . mysql_error());
-     $row = mysql_fetch_row($result);
-     printf(" Average %f  Standard Dev %f <br />\n",$row[0],$row[1]);
-   }
-echo '<form action="p3.php" method="post"><pre>';
-for($j = 0 ; $j <sizeof($dbfs) ; ++$j) {
-  if($j == 0) {
-     printf(' %15s <input type="radio" name="tgval" value="%s" checked"/>',$nms[$j],$dbfs[$j]);
-  } else {
-     printf(' %15s <input type="radio" name="tgval" value="%s"/>',$nms[$j],$dbfs[$j]);
+
+$dbfs = ["natm", "ncar", "nnit", "noxy", "nsul", "ncycl", "nhdon", "nhacc", "nrotb", "mw", "TPSA", "XLogP"];
+$nms = ["n atoms", "n carbons", "n nitrogens", "n oxygens", "n sulphurs", "n cycles", "n H donors", "n H acceptors", "n rot bonds", "mol wt", "TPSA", "XLogP"];
+
+echo "<pre>This is the Statistics Page</pre>";
+
+if (isset($_POST['tgval'])) {
+  $chosen = array_search($_POST['tgval'], $dbfs);
+  if ($chosen !== false) {
+    echo "Statistics for {$dbfs[$chosen]} ({$nms[$chosen]})<br />\n";
+    // 使用PDO进行数据库连接
+    try {
+      $pdo = new PDO("mysql:host=$db_hostname;dbname=$db_database;charset=utf8mb4", $db_username, $db_password);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+      // 安全地执行查询
+      $stmt = $pdo->prepare("SELECT AVG({$dbfs[$chosen]}), STD({$dbfs[$chosen]}) FROM Compounds");
+      $stmt->execute();
+      $row = $stmt->fetch(PDO::FETCH_NUM);
+
+      printf("Average: %f  Standard Deviation: %f <br />\n", $row[0], $row[1]);
+    } catch (PDOException $e) {
+      die("Unable to connect to database: " . $e->getMessage());
+    }
   }
+}
+
+echo '<form action="p3.php" method="post"><pre>';
+foreach ($dbfs as $index => $field) {
+  $checked = $index === 0 ? 'checked' : '';
+  printf('%15s <input type="radio" name="tgval" value="%s" %s/>', $nms[$index], $field, $checked);
   echo "\n";
-} 
+}
 echo '<input type="submit" value="OK" />';
 echo '</pre></form>';
-echo <<<_TAIL1
+
+echo <<<'TAIL'
 </body>
 </html>
-_TAIL1;
+TAIL;
 
 ?>

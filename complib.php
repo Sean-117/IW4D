@@ -1,25 +1,23 @@
 <?php
 session_start();
 require_once 'login.php';
+
 echo<<<_HEAD1
 <html>
 <body>
 _HEAD1;
-
-// THE CONNECTION AND QUERY SECTIONS NEED TO BE MADE TO WORK FOR PHP 8 USING PDO... //
 
 try {
     // PDO
     $pdo = new PDO("mysql:host=$hostname;dbname=$database;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // query
-    $query = "SELECT * FROM Manufacturers";
-    $result = $pdo->query($query);
+    // query with prepared statement
+    $stmt = $pdo->prepare("SELECT * FROM Manufacturers");
+    $stmt->execute();
 
     $mask = 0;
-    $rows = $result->fetchAll();
-    foreach ($rows as $row) {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $mask = (2 * $mask) + 1;
     }
     $_SESSION['supmask'] = $mask;
