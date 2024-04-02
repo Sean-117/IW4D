@@ -2,11 +2,6 @@
 session_start();
 require_once 'login.php';
 
-echo<<<_HEAD1
-<html>
-<body>
-_HEAD1;
-
 try {
     // PDO
     $pdo = new PDO("mysql:host=$hostname;dbname=$database;charset=utf8", $username, $password);
@@ -25,29 +20,47 @@ try {
     die("Unable to connect to database: " . $e->getMessage());
 }
 
-$_SESSION['supmask'] = $mask;
-   echo <<<_EOP
+echo <<<EOT
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Submission</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2>Form Submission</h2>
+    <form action="indexp.php" method="post" onSubmit="return validate(this)" class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label for="fn" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="fn" name="fn" required>
+            <div class="invalid-feedback">
+                Please provide a first name.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="sn" class="form-label">Second Name</label>
+            <input type="text" class="form-control" id="sn" name="sn" required>
+            <div class="invalid-feedback">
+                Please provide a second name.
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
 <script>
-   function validate(form) {
-   fail = ""
-   if(form.fn.value =="") fail = "Must Give Forname "
-   if(form.sn.value == "") fail += "Must Give Surname"
-   if(fail =="") return true
-       else {alert(fail); return false}
-   }
+function validate(form) {
+    let fail = "";
+    if (form.fn.value == "") fail = "Must give first name. ";
+    if (form.sn.value == "") fail += "Must give second name.";
+    if (fail == "") return true;
+    else { alert(fail); return false; }
+}
 </script>
-<form action="indexp.php" method="post" onSubmit="return validate(this)">
-  <pre>
-       First Name<input type="text" name="fn"/>
-       Second Name <input type="text" name="sn"/>
-                   <input type="submit" value="go" />
-</pre></form>
-_EOP;
-
-echo <<<_TAIL1
-</pre>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-_TAIL1;
-
+EOT;
 ?>

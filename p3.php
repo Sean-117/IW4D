@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'redir.php';
-require_once 'login.php'; // 确保这个文件包含数据库连接的参数
+require_once 'login.php';
 
 echo <<<'HEAD'
 <!DOCTYPE html>

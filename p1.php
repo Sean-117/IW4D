@@ -49,19 +49,32 @@ if(isset($_POST['supplier'])) {
     }
 }
 
-echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Select Suppliers</title></head><body>';
-echo 'Currently selected Suppliers: ';
+echo '<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Suppliers</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <h2 class="mb-4">Currently selected Suppliers:</h2>';
 foreach ($sact as $sid => $isActive) {
     if ($isActive) {
-        echo $manufacturers[$sid - 1]['name'], " ";
+        echo '<span class="badge bg-primary me-2">' . $manufacturers[$sid - 1]['name'] . '</span>';
     }
 }
-echo '<br><pre><form action="p1.php" method="post">';
+echo '<form action="p1.php" method="post" class="mt-3">';
 foreach ($manufacturers as $manufacturer) {
-    echo htmlspecialchars($manufacturer['name']),
-    ' <input type="checkbox" name="supplier[]" value="',
+    echo '<div class="form-check">
+            <input class="form-check-input" type="checkbox" name="supplier[]" value="',
     htmlspecialchars($manufacturer['name']), '"',
-    $sact[$manufacturer['id']] ? ' checked' : '', '/><br>';
+    $sact[$manufacturer['id']] ? ' checked' : '',
+    ' id="flexCheckDefault', htmlspecialchars($manufacturer['id']), '">
+            <label class="form-check-label" for="flexCheckDefault', htmlspecialchars($manufacturer['id']), '">',
+    htmlspecialchars($manufacturer['name']), '</label>
+        </div>';
 }
-echo '<input type="submit" value="OK" /></form></pre></body></html>';
+echo '<button type="submit" class="btn btn-primary mt-3">Submit</button></form></div></body></html>';
 ?>

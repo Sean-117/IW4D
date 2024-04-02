@@ -25,15 +25,25 @@ $mansel .= ")";
 
 $setpar = isset($_POST['natmax']);
 
-echo "<!DOCTYPE html><html><body>";
+echo <<<'HTML'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue Retrieval Page</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+HTML;
+
 include 'menuf.php';
-echo "<pre>This is the catalogue retrieval Page</pre>";
+echo "<h2>This is the catalogue retrieval Page</h2>";
 
 if ($setpar) {
   $conditions = [];
   $params = [];
-
-  // querying conditions
   $fields = [
       'natm' => ['natmin', 'natmax'],
       'ncar' => ['ncrmin', 'ncrmax'],
@@ -52,32 +62,62 @@ if ($setpar) {
 
   if (!empty($conditions)) {
     $compsel = "SELECT catn FROM Compounds WHERE " . implode(' AND ', $conditions) . $mansel;
-
-    // querying
     $stmt = $pdo->prepare($compsel);
     $stmt->execute($params);
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (count($results) > 100) {
-      echo "Too many results, max is 100\n";
+      echo "<p>Too many results, max is 100</p>";
     } else {
       foreach ($results as $row) {
-        echo htmlspecialchars($row['catn']), "\n";
+        echo "<p>" . htmlspecialchars($row['catn']) . "</p>";
       }
     }
   } else {
-    echo "No Query Given\n";
+    echo "<p>No Query Given</p>";
   }
 }
 
 echo <<<'FORM'
-    <form action="p2.php" method="post"><pre>
-        Max Atoms      <input type="text" name="natmax"/>    Min Atoms    <input type="text" name="natmin"/>
-        Max Carbons    <input type="text" name="ncrmax"/>    Min Carbons  <input type="text" name="ncrmin"/>
-        Max Nitrogens  <input type="text" name="nntmax"/>    Min Nitrogens<input type="text" name="nntmin"/>
-        Max Oxygens    <input type="text" name="noxmax"/>    Min Oxygens  <input type="text" name="noxmin"/>
-                        <input type="submit" value="list" />
-    </pre></form>
+        <form action="p2.php" method="post" class="row g-3">
+            <div class="col-md-6">
+                <label for="natmax" class="form-label">Max Atoms</label>
+                <input type="text" class="form-control" name="natmax" id="natmax">
+            </div>
+            <div class="col-md-6">
+                <label for="natmin" class="form-label">Min Atoms</label>
+                <input type="text" class="form-control" name="natmin" id="natmin">
+            </div>
+            <div class="col-md-6">
+                <label for="ncrmax" class="form-label">Max Carbons</label>
+                <input type="text" class="form-control" name="ncrmax" id="ncrmax">
+            </div>
+            <div class="col-md-6">
+                <label for="ncrmin" class="form-label">Min Carbons</label>
+                <input type="text" class="form-control" name="ncrmin" id="ncrmin">
+            </div>
+            <div class="col-md-6">
+                <label for="nntmax" class="form-label">Max Nitrogens</label>
+                <input type="text" class="form-control" name="nntmax" id="nntmax">
+            </div>
+            <div class="col-md-6">
+                <label for="nntmin" class="form-label">Min Nitrogens</label>
+                <input type="text" class="form-control" name="nntmin" id="nntmin">
+            </div>
+            <div class="col-md-6">
+                <label for="noxmax" class="form-label">Max Oxygens</label>
+                <input type="text" class="form-control" name="noxmax" id="noxmax">
+            </div>
+            <div class="col-md-6">
+                <label for="noxmin" class="form-label">Min Oxygens</label>
+                <input type="text" class="form-control" name="noxmin" id="noxmin">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">List</button>
+            </div>
+        </form>
+    </div>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 FORM;
