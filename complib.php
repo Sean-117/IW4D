@@ -3,11 +3,9 @@ session_start();
 require_once 'login.php';
 
 try {
-    // PDO
-    $pdo = new PDO("mysql:host=$hostname;dbname=$database;charset=utf8", $username, $password);
+    $pdo = new PDO("mysql:host=$db_hostname;dbname=$db_database;charset=utf8", $db_username, $db_password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // query with prepared statement
     $stmt = $pdo->prepare("SELECT * FROM Manufacturers");
     $stmt->execute();
 
@@ -19,48 +17,49 @@ try {
 } catch (PDOException $e) {
     die("Unable to connect to database: " . $e->getMessage());
 }
+echo "<script>console.log('supmask value: " . json_encode($mask) . "');</script>";
+?>
+?>
 
-echo <<<EOT
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Submission</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <title>Compounds Library</title>
+    <link rel="stylesheet" href="./css/complib.css">
+    <script>
+        function validate(form) {
+            var fail = "";
+            if(form.gn.value === "") fail = "Must Give First Name ";
+            if(form.sn.value === "") fail += "Must Give Surname";
+            if(fail === "") return true;
+            else { alert(fail); return false; }
+        }
+    </script>
 </head>
-<body class="bg-light">
-<div class="container mt-5">
-    <h2>Form Submission</h2>
-    <form action="indexp.php" method="post" onSubmit="return validate(this)" class="needs-validation" novalidate>
-        <div class="mb-3">
-            <label for="fn" class="form-label">First Name</label>
-            <input type="text" class="form-control" id="fn" name="fn" required>
-            <div class="invalid-feedback">
-                Please provide a first name.
+<body>
+<div class="ring">
+    <i style="--clr:#00ff0a;"></i>
+    <i style="--clr:#ff0057;"></i>
+    <i style="--clr:#fffd44;"></i>
+    <div class="login">
+        <h2>Compounds Library</h2>
+        <form action="indexp.php" method="post" onSubmit="return validate(this)">
+            <div class="inputBx">
+                <input type="text" name="gn" placeholder="Given Name">
             </div>
-        </div>
-        <div class="mb-3">
-            <label for="sn" class="form-label">Second Name</label>
-            <input type="text" class="form-control" id="sn" name="sn" required>
-            <div class="invalid-feedback">
-                Please provide a second name.
+            <div class="inputBx">
+                <input type="text" name="sn" placeholder="Surname">
             </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+            <div class="inputBx">
+                <input type="submit" value="Sign In">
+            </div>
+        </form>
+<!--        <div class="links">-->
+<!--            <a href="#">Forget Password</a>-->
+<!--            <a href="#">Sign Up</a>-->
+<!--        </div>-->
+    </div>
 </div>
-<script>
-function validate(form) {
-    let fail = "";
-    if (form.fn.value == "") fail = "Must give first name. ";
-    if (form.sn.value == "") fail += "Must give second name.";
-    if (fail == "") return true;
-    else { alert(fail); return false; }
-}
-</script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-EOT;
-?>
