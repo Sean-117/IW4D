@@ -2,6 +2,8 @@
 session_start();
 require_once 'login.php';
 include 'redir.php';
+$gn = $_SESSION['givenname'];
+$sn = $_SESSION['surname'];
 
 // connecting to db
 try {
@@ -84,7 +86,7 @@ echo '<!DOCTYPE html>
 
             <!-- Logo starts -->
             <div class="app-brand px-3 py-2 d-flex align-items-center">
-                <a href="index.html">
+                <a href="complib.php">
                     <img src="./images/logo.png" class="logo" alt="Compounds Library"/>
                 </a>
             </div>
@@ -109,7 +111,7 @@ echo '<!DOCTYPE html>
                                 <a href="searchcomps.php">Compounds</a>
                             </li>
                             <li>
-                                <a href="props_in.php">Properties</a>
+                                <a href="props_in.php">by Properties</a>
                             </li>
                         </ul>
                     </li>
@@ -127,18 +129,12 @@ echo '<!DOCTYPE html>
                     </li>
                     <li>
                         <a href="draw_my_smile.php">
-                            <i class="icon-support_agent"></i>
+                            <i class="icon-image_aspect_ratio"></i>
                             <span class="menu-text">Draw Smiles</span>
                         </a>
                     </li>
                     <li>
-                        <a href="help.html">
-                            <i class="icon-support_agent"></i>
-                            <span class="menu-text">Placeholder</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="help.html">
+                        <a href="help.php">
                             <i class="icon-support_agent"></i>
                             <span class="menu-text">Help with AI</span>
                         </a>
@@ -167,7 +163,7 @@ echo '<!DOCTYPE html>
                         </ul>
                     </li>
                     <li>
-                        <a href="https://bioinfmsc8.bio.ed.ac.uk/~' . $username . '/exit.php">
+                        <a href="exit.php">
                             <i class="icon-exit_to_app"></i>
                             <span class="menu-text">Sign Out</span>
                         </a>
@@ -208,7 +204,7 @@ echo '<!DOCTYPE html>
                     <div class="dropdown ms-2">
                         <a class="dropdown-toggle d-flex align-items-center user-settings" href="#!" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <span>Sean Tse</span>
+                            <span>'.$gn . " " . $sn.'</span>
                             <img src="deer.jpg" class="img-3x m-2 me-0 rounded-3" alt="Bootstrap Gallery"/>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-sm shadow-sm gap-3">
@@ -349,10 +345,6 @@ echo '
 <!-- Required jQuery first, then Bootstrap Bundle JS -->
 <script src="./js/jquery.min.js"></script>
 <script src="./js/bootstrap.bundle.min.js"></script>
-
-<!-- *************
-    ************ Vendor Js Files *************
-************* -->
 
 <!-- Overlay Scroll JS -->
 <script src="./overlay-scroll/jquery.overlayScrollbars.min.js"></script>

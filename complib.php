@@ -17,8 +17,6 @@ try {
 } catch (PDOException $e) {
     die("Unable to connect to database: " . $e->getMessage());
 }
-echo "<script>console.log('supmask value: " . json_encode($mask) . "');</script>";
-?>
 ?>
 
 <!DOCTYPE html>
@@ -30,7 +28,7 @@ echo "<script>console.log('supmask value: " . json_encode($mask) . "');</script>
     <script>
         function validate(form) {
             var fail = "";
-            if(form.gn.value === "") fail = "Must Give First Name ";
+            if(form.gn.value === "") fail = "Must Give First Name";
             if(form.sn.value === "") fail += "Must Give Surname";
             if(fail === "") return true;
             else { alert(fail); return false; }
